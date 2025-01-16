@@ -13,7 +13,7 @@ namespace WebApplication1.Services
             _context = context;
         }
 
-        public void CreateUser(UserDTOIn user)
+        public string CreateUser(UserDTOIn user)
         {
             User newUser = new User
             {
@@ -26,7 +26,6 @@ namespace WebApplication1.Services
                 PasswordHash = user.Password,
                 Email = user.Email,
                 PostalCode = user.PostalCode,
-                IsAdmin = user.IsAdmin,
                 ActiveMember = user.ActiveMember,
                 DateOfBirth = user.DateOfBirth,
                 RegistrationDate = user.RegistrationDate
@@ -34,20 +33,15 @@ namespace WebApplication1.Services
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
+            return newUser.Id;
+
         }
 
         public UserDTOOut? GetUser(string id)
         {
             User? user = _context.Users.Where(x => x.Id == id).FirstOrDefault();
-            if (user == null)
-            {
-                return null;
-            }
-
-            UserDTOOut outputUser = new UserDTOOut(user.Id, user.FirstName, user.LastName, user.City, user.Country, user.Address);
-            return outputUser;
-
-         }
+            return user == null ? null : new UserDTOOut(user.Id, user.FirstName, user.LastName, user.Email, user.Role, user.Country);
+        }
 
         public List<UserDTOOut> GetUsers()
         {
@@ -55,7 +49,7 @@ namespace WebApplication1.Services
             List<UserDTOOut> users = new List<UserDTOOut>();
             foreach (var user in _context.Users)
             {
-                UserDTOOut userDTOOut = new UserDTOOut(user.Id, user.FirstName, user.LastName, user.City, user.Country, user.Address);
+                UserDTOOut userDTOOut = new UserDTOOut(user.Id, user.FirstName, user.LastName, user.Email, user.Role, user.Country);
                 users.Add(userDTOOut);
             }
             return users;
@@ -78,27 +72,28 @@ namespace WebApplication1.Services
             userToUpdate.PasswordHash = user.Password;
             userToUpdate.Email = user.Email;
             userToUpdate.PostalCode = user.PostalCode;
-            userToUpdate.IsAdmin = user.IsAdmin;
             userToUpdate.ActiveMember = user.ActiveMember;
             userToUpdate.DateOfBirth = user.DateOfBirth;
             userToUpdate.RegistrationDate = user.RegistrationDate;
 
             _context.SaveChanges();
 
-            UserDTOOut outputUser = new UserDTOOut(userToUpdate.Id, userToUpdate.FirstName, userToUpdate.LastName, userToUpdate.City, userToUpdate.Country, userToUpdate.Address);
+            UserDTOOut outputUser = new UserDTOOut(userToUpdate.Id, userToUpdate.FirstName, userToUpdate.LastName, userToUpdate.Email, userToUpdate.Role, userToUpdate.Country);
 
             return outputUser;
         }
 
-        public void DeleteUser(string id)
+        public bool DeleteUser(string id)
         {
             User? user = _context.Users.Where(x => x.Id == id).FirstOrDefault();
             if (user == null)
             {
-                return;
+                return false;
             }
             _context.Users.Remove(user);
             _context.SaveChanges();
+
+            return true;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Services;
 
@@ -11,50 +10,62 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private UserDataService userDataService;
+        private readonly UserDataService _userDataService;
 
-        public UsersController(UserDataService userDataServiceArg)
+        public UsersController(UserDataService userDataService)
         {
-            userDataService = userDataServiceArg;
+            _userDataService = userDataService;
         }
 
         // GET: api/<UsersController>
         [HttpGet]
-        public IEnumerable<UserDTOOut> Get()
+        public ActionResult<IEnumerable<UserDTOOut>> Get()
         {
-            return userDataService.GetUsers();
+            return Ok(_userDataService.GetUsers());
         }
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        public UserDTOOut? Get(string id)
+        public IActionResult Get(string id)
         {
-            return userDataService.GetUser(id);
+            UserDTOOut? user = _userDataService.GetUser(id);
+            return user == null ? NotFound() : Ok(user);
         }
 
         // POST api/<UsersController>
         [HttpPost]
-        public UserDTOIn Post([FromBody] UserDTOIn user)
+        public IActionResult Post([FromBody] UserDTOIn user)
         {
 
-            userDataService.CreateUser(user);
-
-            return user;
+            string newUserId = _userDataService.CreateUser(user);
+            
+            return CreatedAtAction(
+            nameof(Get), 
+            new { id = newUserId }, 
+            new { success = true, message = "User created successfully", userId = newUserId}
+            );
         }
 
         // PUT api/<UsersController>/5
         [HttpPut("{id}")]
-        public UserDTOOut? Put(string id, [FromBody] UserDTOIn value)
+        public IActionResult Put(string id, [FromBody] UserDTOIn value)
         {
-            return userDataService.UpdateUser(id, value);
+            UserDTOOut? userData = _userDataService.UpdateUser(id, value);
+
+            return userData == null ? NotFound() : Ok(new { 
+                success =  true,
+                message = "User updated",
+                user = userData
+            });
 
         }
 
         // DELETE api/<UsersController>/5
         [HttpDelete("{id}")]
-        public void Delete(string id)
+        public IActionResult Delete(string id)
         {
-            userDataService.DeleteUser(id);
+            bool isDeleted = _userDataService.DeleteUser(id);
+            return isDeleted ? Ok(new { success = true, message = "User deleted successfully" }) : NotFound();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using WebApplication1.Validators;
 
@@ -24,16 +25,16 @@ namespace WebApplication1.Models
 
 
         [Required]
+        [EnumDataType(typeof(ERole))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ERole Role { get; set; }
         	
 
         public string? PostalCode { get; set; }
 
-        [Required]
-        public bool IsAdmin { get; set; } = false;
 
         [Required]
-        public bool ActiveMember { get; set; } = false;
+        public bool ActiveMember { get; set; } = true;
 
         [Required]
         public DateOnly DateOfBirth { get; set; }
@@ -47,11 +48,12 @@ namespace WebApplication1.Models
         }
 
     }
+}
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ERole
     {
         Admin,
         Member,
         Staff
     }
-}
