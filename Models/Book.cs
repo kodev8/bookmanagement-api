@@ -8,7 +8,7 @@ public class Book
     [Required]
     public int Id { get; set; }
 
-    [Required, JsonPropertyName("Title"), StringLength(50)]
+    [Required, StringLength(50)]
     public string? FullTitle { get; set; }
 
     [StringLength(500)]
@@ -16,6 +16,8 @@ public class Book
 
     [Required, NoSpecialChars]
     public string? Author { get; set; }
+
+    [Required]
     public Genre[]? Genres { get; set; }
 
     [Required]
@@ -41,22 +43,18 @@ public class Book
     {
         if (Genres != null && Genres.Length > 0)
         {
-            var baseString = "";
-            foreach (var genre in Genres)
-            {
-                baseString += genre + " ";
-            }
-            return baseString;
+           return string.Join(", ", Genres);
         }
         else
         {
             return "No Genres Yet!";
         }
     }
+}
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Genre
     {
-        None,
         Fiction,
         NonFiction,
         Fantasy,
@@ -88,4 +86,3 @@ public class Book
         Other
              
     }
-}

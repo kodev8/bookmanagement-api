@@ -1,4 +1,3 @@
-
 using WebApplication1.Models;
 //using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +20,7 @@ namespace WebApplication1
 
             // Add services to the container.
             builder.Services.AddScoped<UserDataService>();
+            builder.Services.AddSingleton<BookService>(); // only using as singleton for now since we have not done the db yet
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

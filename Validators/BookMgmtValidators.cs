@@ -8,7 +8,7 @@ namespace WebApplication1.Validators
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             var book = (Book)validationContext.ObjectInstance;
-            if (book.Genres != null && book.Genres.Contains(Book.Genre.Horror))
+            if (book.Genres != null && book.Genres.Contains(Genre.Horror))
             {
                 return new ValidationResult("We don't sell horror books here");
             }

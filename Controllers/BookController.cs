@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
@@ -8,39 +8,45 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        // GET: api/<BookController>
+        private BookService _bookService;
+
+        public BookController(BookService bookService)
+        {
+            _bookService = bookService;
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public ActionResult<IEnumerable<BookDTOOut>> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            return Ok(_bookService.GetAllBooks());
         }
 
-        // GET api/<BookController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult<BookDTOOut> Get(int id)
         {
-            return "value";
+            BookDTOOut? book = _bookService.GetBook(id);
+            return book == null ? NotFound() : Ok(book);
         }
 
-        // POST api/<BookController>
         [HttpPost]
-        public Book Post([FromBody] Book book)
+        public ActionResult<BookDTOOut> Post([FromBody] BookDTOIn bookDTO)
         {
-            Console.WriteLine(book);
-            return book;
+            BookDTOOut book = _bookService.AddBook(bookDTO);
+            return CreatedAtAction(nameof(Get), new { id = book.Id }, book);
         }
 
-        // PUT api/<BookController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Book book)
+        public ActionResult<BookDTOOut> Put(int id, [FromBody] BookDTOIn bookDTO)
         {
-            Console.WriteLine(book);
+            BookDTOOut? book = _bookService.UpdateBook(id, bookDTO);
+            return book == null ? NotFound() : Ok(book);
         }
 
-        // DELETE api/<BookController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
+            if (!_bookService.DeleteBook(id)) return NotFound();
+            return NoContent();
         }
     }
 }
