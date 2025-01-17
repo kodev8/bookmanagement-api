@@ -26,7 +26,7 @@ namespace WebApplication1.Controllers
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        public ActionResult<UserDTOOut> Get(string id)
         {
             UserDTOOut? user = _userDataService.GetUser(id);
             return user == null ? NotFound() : Ok(user);

@@ -29,8 +29,6 @@ namespace WebApplication1.Models
         public string? Password { get; set; }
 
         [Required]
-        [EnumDataType(typeof(ERole))]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ERole Role { get; set; }
 
         public string? PostalCode { get; set; }

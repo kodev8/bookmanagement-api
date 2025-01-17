@@ -25,8 +25,6 @@ namespace WebApplication1.Models
 
 
         [Required]
-        [EnumDataType(typeof(ERole))]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ERole Role { get; set; }
         	
 
