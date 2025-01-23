@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using WebApplication1.Validators;
 
 namespace WebApplication1.Models
@@ -13,6 +12,9 @@ namespace WebApplication1.Models
         [Required, StringLength(50), NoSpecialChars]
         public string? LastName { get; set; }
 
+        [Required, StringLength(50), NoSpecialChars(AllowableChars= "_")]
+        public string? UserName { get; set; }
+
         [Required]
         public string? City { get; set; }
 
@@ -22,10 +24,10 @@ namespace WebApplication1.Models
         [Required]
         public string? Address { get; set; }
 
-        [Required]
+        [Required, EmailAddress]
         public string? Email { get; set; }
 
-        [Required]
+        [Required, Password]
         public string? Password { get; set; }
 
         [Required]
@@ -50,27 +52,31 @@ namespace WebApplication1.Models
         public string Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public string? UserName { get; set; }
         public string? Email { get; set; }
-        public ERole Role { get; set; }
+        public string? Role { get; set; }
         public string? Country { get; set; }
 
         public UserDTOOut(
             string id, 
             string? firstName, 
             string? lastName, 
+            string? userName,
             string? email,
-            ERole role,
+            string? role,
             string? country
         )
         {
             Id = id;
             FirstName = firstName;
             LastName = lastName;
+            UserName = userName;
             Email = email;
             Role = role;
             Country = country;
         }
     }
 
-
+        public record LoginDTO(string Email, string Password);
+        public record LoginResponseDTO(string Token, string Email, string Role);
 }
