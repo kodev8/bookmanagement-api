@@ -1,88 +1,40 @@
-﻿namespace WebApplication1.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Validators;
+namespace WebApplication1.Models;
 
-public class Book
+public partial class Book
 {
-    [Required]
     public int Id { get; set; }
 
-    [Required, StringLength(50)]
-    public string? FullTitle { get; set; }
+    public string Isbn { get; set; } = null!;
 
-    [StringLength(500)]
+    public string Title { get; set; } = null!;
+
     public string? Description { get; set; }
 
-    [Required, NoSpecialChars]
-    public string? Author { get; set; }
-
-    [Required]
-    public Genre[]? Genres { get; set; }
-
-    [Required]
     public DateOnly PublicationDate { get; set; }
 
-    [Required, Range(1, 1000)]
-    public int NumberOfPages { get; set; }
+    public string Publisher { get; set; } = null!;
 
+    public int AvailableCopies { get; set; }
 
-    public override string ToString()
-    {
-        string Base =$"Id: {Id}\nTitle: {FullTitle}\nDescription: {Description}\nAuthor: {Author}\nPubDate: {PublicationDate}\n";
+    public DateTime AddedDate { get; set; }
 
-        if (Genres!=null)
-        {
-            Base += $"Genres: { BuildGenres()}\n";
-        }
+    public DateTime? LastUpdated { get; set; }
 
-        return Base;
-    }
+    public string Language { get; set; } = null!;
 
-    private string BuildGenres()
-    {
-        if (Genres != null && Genres.Length > 0)
-        {
-           return string.Join(", ", Genres);
-        }
-        else
-        {
-            return "No Genres Yet!";
-        }
-    }
+    public int TotalPages { get; set; }
+
+    public bool IsRemoved { get; set; } = false;
+
+    public virtual ICollection<BookLoan> BookLoans { get; set; } = new List<BookLoan>();
+
+    public virtual ICollection<Author> Authors { get; set; } = new List<Author>();
+
+    public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
+
 }
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum Genre
-    {
-        Fiction,
-        NonFiction,
-        Fantasy,
-        SciFi,
-        Mystery,
-        Romance,
-        Horror,
-        Thriller,
-        Comedy,
-        Drama,
-        Action,
-        Adventure,
-        Biography,
-        Autobiography,
-        History,
-        Science,
-        Math,
-        Philosophy,
-        Religion,
-        SelfHelp,
-        Health,
-        Fitness,
-        Cooking,
-        Travel,
-        Guide,
-        Children,
-        YoungAdult,
-        Adult,
-        Other
-             
-    }
+

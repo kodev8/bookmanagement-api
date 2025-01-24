@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using WebApplication1.Models;
 using WebApplication1.Services;
+using WebApplication1.Services.Errors;
 
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BookController : ControllerBase
     {
         private BookService _bookService;
@@ -16,37 +19,56 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<BookDTOOut>> GetAll()
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<BookDTOOut>>> GetAll()
         {
-            return Ok(_bookService.GetAllBooks());
+            return Ok(await _bookService.GetAllBooks());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<BookDTOOut> Get(int id)
+        [AllowAnonymous]
+        public async Task<ActionResult<BookDTOOut>> Get(int id)
         {
-            BookDTOOut? book = _bookService.GetBook(id);
+            BookDTOOut? book = await _bookService.GetBook(id);
             return book == null ? NotFound() : Ok(book);
         }
 
         [HttpPost]
-        public ActionResult<BookDTOOut> Post([FromBody] BookDTOIn bookDTO)
+        [Authorize(Roles = "Admin,Staff")]
+        public async Task<ActionResult<BookDTOOut>> Post([FromBody] BookDTOIn bookDTO)
         {
-            BookDTOOut book = _bookService.AddBook(bookDTO);
-            return CreatedAtAction(nameof(Get), new { id = book.Id }, book);
+            var response = await _bookService.AddBook(bookDTO);
+            if (response.Error != BookError.None)
+                return BadRequest(new { error = response.Error, message = response.Error.GetMessage() });
+
+            return CreatedAtAction(nameof(Get), new { id = response.Data!.Id }, response.Data);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<BookDTOOut> Put(int id, [FromBody] BookDTOIn bookDTO)
+        [Authorize(Roles = "Admin,Staff")]
+        public async Task<ActionResult<BookDTOOut>> Put(int id, [FromBody] BookDTOIn bookDTO)
         {
-            BookDTOOut? book = _bookService.UpdateBook(id, bookDTO);
-            return book == null ? NotFound() : Ok(book);
+            var response = await _bookService.UpdateBook(id, bookDTO);
+            if (response.Error != BookError.None)
+                return BadRequest(new { error = response.Error, message = response.Error.GetMessage() });
+
+            return Ok(response.Data);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete(int id)
         {
-            if (!_bookService.DeleteBook(id)) return NotFound();
+            if (!await _bookService.DeleteBook(id)) return NotFound();
             return NoContent();
+        }
+
+        [HttpPost("{id}/restore")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Restore(int id)
+        {
+            if (!await _bookService.RestoreBook(id)) return NotFound();
+            return Ok();
         }
     }
 }
